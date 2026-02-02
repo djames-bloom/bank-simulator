@@ -35,3 +35,16 @@ pub const DeterministicRNG = struct {
         return self.seed;
     }
 };
+
+test "rng state is deterministic from seed" {
+    var rng_a = DeterministicRNG.init(131);
+    var rng_b = DeterministicRNG.init(131);
+
+    var i: usize = 0;
+    while (i < 1_000) : (i += 1) {
+        const a = rng_a.rng.random().int(u64);
+        const b = rng_b.rng.random().int(u64);
+
+        try std.testing.expectEqual(a, b);
+    }
+}
