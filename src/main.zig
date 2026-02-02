@@ -1,5 +1,7 @@
 const std = @import("std");
 const Bank = @import("bank.zig").Bank;
+const Clock = @import("clock.zig").Clock;
+const DeterministicRNG = @import("prng.zig").DeterministicRNG;
 
 const stdout = std.io.getStdOut().writer();
 
@@ -25,7 +27,8 @@ pub fn main() !void {
 pub fn universe(allocator: std.mem.Allocator, chaos_enabled: bool) !void {
     try stdout.print("Simulating a new universe\n", .{});
 
-    var bank = Bank.init(allocator);
+    var clock = Clock.init();
+    var bank = Bank.init(allocator, &clock);
     defer bank.deinit();
     bank.chaos_enabled = chaos_enabled;
 
