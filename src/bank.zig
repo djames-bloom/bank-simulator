@@ -1,4 +1,5 @@
 const std = @import("std");
+const Clock = @import("clock.zig").Clock;
 
 pub const TransferState = enum {
     UNDEFINED,
@@ -34,9 +35,11 @@ pub const Bank = struct {
     injected_faults: u64,
     initial_total_balance: i64,
     chaos_enabled: bool,
+    clock: *Clock,
 
     pub fn init(
         allocator: std.mem.Allocator,
+        clock: *Clock,
     ) Bank {
         return .{
             .accounts = std.AutoHashMap(AccountID, Account).init(allocator),
@@ -46,6 +49,7 @@ pub const Bank = struct {
             .injected_faults = 0,
             .initial_total_balance = 0,
             .chaos_enabled = true, // def to on
+            .clock = clock,
         };
     }
 
