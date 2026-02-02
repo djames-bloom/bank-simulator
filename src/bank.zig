@@ -53,4 +53,42 @@ pub const Bank = struct {
         self.accounts.deinit();
         self.transfer_log.deinit();
     }
+
+    pub fn createAccount(self: *Bank, id: AccountID, initial_balance: u64) !void {
+        try self.accounts.put(id, .{
+            .id = id,
+            .balance = @intCast(initial_balance),
+            .pending_operations = 0,
+            .version = 0,
+        });
+
+        self.initial_total_balance += @intCast(initial_balance);
+    }
+
+    pub fn getAccount(self: *const Bank, id: AccountID) ?Account {
+        return self.accounts.get(id);
+    }
+
+    pub fn getTotalBalance(self: *const Bank) i64 {
+        var total: i64 = 0;
+        var itt = self.accounts.valueIterator();
+
+        while (itt.next()) |account| {
+            total += account.balance;
+        }
+
+        return total;
+    }
+
+    pub fn getStats(self: *const Bank) struct {
+        total: u64,
+        failed: u64,
+        faults: u64,
+    } {
+        return .{
+            .total = self.total_transfers,
+            .failed = self.failed_transfers,
+            .faults = self.injected_faults,
+        };
+    }
 };
