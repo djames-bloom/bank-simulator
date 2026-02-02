@@ -30,3 +30,16 @@ pub const Clock = struct {
         return res;
     }
 };
+
+test "clock advances deterministically" {
+    var c = Clock.init();
+    try std.testing.expectEqual(@as(u64, 0), c.now());
+
+    // advance 1ms
+    c.advance(1_000_000);
+    try std.testing.expectEqual(@as(u64, 1_000_000), c.now());
+
+    // advance 5ms
+    c.advance(5_000_000);
+    try std.testing.expectEqual(@as(u64, 6_000_000), c.now());
+}
