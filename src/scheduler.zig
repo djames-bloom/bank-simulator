@@ -14,8 +14,8 @@ pub const EventType = enum {
 pub const Event = struct {
     id: u64,
     event_type: EventType,
-    ScheduledTime: u64,
-    Payload: EventPayload,
+    scheduled_time: u64,
+    payload: EventPayload,
 };
 
 pub const EventPayload = union(EventType) {
@@ -23,7 +23,7 @@ pub const EventPayload = union(EventType) {
     timeout: TimeoutPayload,
     tick: TickPayload,
     checkpoint: CheckpointPayload,
-    injectedFault: InjectedFaultPayload,
+    injected_fault: InjectedFaultPayload,
 };
 
 pub const TransferPayload = struct {
