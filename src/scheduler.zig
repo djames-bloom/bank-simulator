@@ -74,6 +74,30 @@ pub const Scheduler = struct {
     pub fn deinit(self: *Scheduler) void {
         self.event_queue.deinit();
     }
+
+    pub fn getStats(self: *const Scheduler) struct {
+        events_processed: u64,
+        events_pending: usize,
+        current_time: u64,
+    } {
+        return .{
+            .events_processed = self.events_processed,
+            .events_pending = self.event_queue.count(),
+            .current_time = self.clock.now(),
+        };
+    }
+
+    pub fn hasEvents(self: *const Scheduler) bool {
+        return self.event_queue.count() > 0;
+    }
+
+    pub fn peek(self: *const Scheduler) ?Event {
+        return self.event_queue.peek();
+    }
+
+    pub fn timedOut(self: *const Scheduler) bool {
+        return self.clock.now() >= self.max_time;
+    }
 };
 
 fn eventLessThan(context: void, x: Event, y: Event) std.math.Order {
