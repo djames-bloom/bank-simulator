@@ -75,6 +75,20 @@ pub const Scheduler = struct {
         self.event_queue.deinit();
     }
 
+    pub fn next(self: *Scheduler) ?Event {
+        if (self.event_queue.removeOrNull()) |event| {
+            // tick clock to event time
+            if (event.scheduled_time > self.clock.now()) {
+                self.clock.current_time = event.scheduled_time;
+            }
+
+            self.events_processed += 1;
+            return event;
+        }
+
+        return null;
+    }
+
     pub fn schedule(self: *Scheduler, time: u64, payload: EventPayload) !void {
         const event = Event{
             .id = self.next_event_id,
