@@ -75,6 +75,28 @@ pub const Scheduler = struct {
         self.event_queue.deinit();
     }
 
+    pub fn schedule(self: *Scheduler, time: u64, payload: EventPayload) !void {
+        const event = Event{
+            .id = self.next_event_id,
+            .event_type = std.meta.activeTag(payload),
+            .scheduled_time = time,
+            .payload = payload,
+        };
+        self.next_event_id += 1;
+
+        try self.event_queue.add(event);
+    }
+
+    pub fn scheduleDelayed(self: *Scheduler, delay: u64, payload: EventPayload) !void {
+        try self.schedule(self.clock.now() + delay, payload);
+    }
+
+    pub fn scheduleRand(self: *Scheduler, base_delay: u64, max_additive: u64, payload: EventPayload) !void {
+        const jitter = self.rng.delay(0, max_additive);
+
+        try self.scheduleDelayed(base_delay + jitter, payload);
+    }
+
     pub fn getStats(self: *const Scheduler) struct {
         events_processed: u64,
         events_pending: usize,
