@@ -3,12 +3,11 @@ const Clock = @import("clock.zig").Clock;
 const DeterministicRNG = @import("prng.zig").DeterministicRNG;
 
 pub const EventType = enum {
-    UNDEFINED,
-    TRANSFER,
-    TIMEOUT,
-    TICK,
-    CHECKPOINT,
-    INJECTED_FAULT,
+    transfer,
+    timeout,
+    tick,
+    checkpoint,
+    injected_fault,
 };
 
 pub const Event = struct {
@@ -146,4 +145,26 @@ fn eventLessThan(context: void, x: Event, y: Event) std.math.Order {
     if (x.id > y.id) return .gt;
 
     return .eq;
+}
+
+test "scheduler processes events in order" {
+    var clock = Clock.init();
+    var rng = DeterministicRNG.init(131);
+
+    var scheduler = Scheduler.init(std.testing.allocator, &clock, &rng);
+    defer scheduler.deinit();
+
+    // scheduling queued out of order - resolved to 100 -> 200 -> 300
+    try scheduler.schedule(200, .{ .tick = .{ .node_id = 2 } });
+    try scheduler.schedule(100, .{ .tick = .{ .node_id = 1 } });
+    try scheduler.schedule(300, .{ .tick = .{ .node_id = 3 } });
+
+    const event_a = scheduler.next().?;
+    try std.testing.expectEqual(@as(u32, 1), event_a.payload.tick.node_id);
+
+    const event_b = scheduler.next().?;
+    try std.testing.expectEqual(@as(u32, 2), event_b.payload.tick.node_id);
+
+    const event_c = scheduler.next().?;
+    try std.testing.expectEqual(@as(u32, 3), event_c.payload.tick.node_id);
 }
