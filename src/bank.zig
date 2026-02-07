@@ -58,6 +58,15 @@ pub const Bank = struct {
         self.transfer_log.deinit();
     }
 
+    pub fn transfer(self: *Bank, request: TransferReq) !TransferState {
+        self.total_transfers += 1;
+
+        _ = request;
+        // @TODO
+
+        return .SUCCESS;
+    }
+
     pub fn createAccount(self: *Bank, id: AccountID, initial_balance: u64) !void {
         try self.accounts.put(id, .{
             .id = id,

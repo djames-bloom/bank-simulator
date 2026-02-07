@@ -28,7 +28,7 @@ pub const DeterministicRNG = struct {
     }
 
     pub fn delay(self: *DeterministicRNG, min: u64, max: u64) u64 {
-        return self.rng.ranodm().intRangeAtMost(u64, min, max);
+        return self.rng.random().intRangeAtMost(u64, min, max);
     }
 
     pub fn getSeed(self: *const DeterministicRNG) u64 {
